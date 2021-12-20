@@ -7,7 +7,6 @@
 #define __METAPUBLISH_METHOD_H__
 
 #include <glib-object.h>
-
 G_BEGIN_DECLS
 
 #define METAPUBLISH_TYPE_METHOD metapublish_method_get_type()

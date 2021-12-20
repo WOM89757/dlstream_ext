@@ -84,6 +84,8 @@ void append(GVA::VideoFrame &video_frame, const vas::ot::Object &tracked_object,
     auto roi = video_frame.add_region(tracked_object.rect.x, tracked_object.rect.y, tracked_object.rect.width,
                                       tracked_object.rect.height, label, 1.0);
     roi.detection().set_int("label_id", tracked_object.class_label);
+    if (tracked_object.status == vas::ot::TrackingStatus::NEW) roi.detection().set_int("new", 1);
+    else roi.detection().set_int("new", 0);
     roi.set_object_id(tracked_object.tracking_id);
 }
 
@@ -196,8 +198,11 @@ void Tracker::track(GstBuffer *buffer) {
         for (const auto &tracked_object : tracked_objects) {
             if (tracked_object.status == vas::ot::TrackingStatus::LOST)
                 continue;
-            if (tracked_object.association_idx != NO_ASSOCIATION)
+            if (tracked_object.association_idx != NO_ASSOCIATION) {
                 regions[tracked_object.association_idx].set_object_id(tracked_object.tracking_id);
+                if (tracked_object.status == vas::ot::TrackingStatus::NEW) regions[tracked_object.association_idx].detection().set_int("new", 1);
+                else regions[tracked_object.association_idx].detection().set_int("new", 0);
+            }
             else {
                 auto it = labels.find(tracked_object.class_label);
                 std::string label = it != labels.end() ? it->second : std::string();

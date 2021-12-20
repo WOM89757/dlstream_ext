@@ -372,6 +372,7 @@ bool Impl::render(GstBuffer *buffer) {
 }
 
 void Impl::preparePrimsForRoi(GVA::RegionOfInterest &roi, std::vector<gapidraw::Prim> &prims) const {
+    // if (roi.label() == "region") return ;
     size_t color_index = roi.label_id();
 
     auto rect = roi.normalized_rect();

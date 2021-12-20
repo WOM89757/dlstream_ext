@@ -713,6 +713,8 @@ GstFlowReturn gva_base_inference_transform_ip(GstBaseTransform *trans, GstBuffer
         return GST_FLOW_ERROR;
     }
 
+    //TODO add detection roi-list  send emit by name user callback
+
     return frame_to_base_inference(base_inference, buf);
 
     /* return GST_FLOW_OK; FIXME shouldn't signal about dropping frames in inplace transform function*/

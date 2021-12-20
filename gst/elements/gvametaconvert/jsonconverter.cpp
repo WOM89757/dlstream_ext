@@ -21,6 +21,8 @@ using json = nlohmann::json;
 GST_DEBUG_CATEGORY_STATIC(gst_json_converter_debug);
 #define GST_CAT_DEFAULT gst_json_converter_debug
 
+nlohmann::json region;
+
 /**
  * @return JSON object which contains parameters such as resolution, timestamp, source and tags.
  */
@@ -47,6 +49,13 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
     json res = json::array();
     GVA::VideoFrame video_frame(buffer, converter->info);
     for (GVA::RegionOfInterest &roi : video_frame.regions()) {
+
+        const gchar *labelinfo = g_quark_to_string(roi._meta()->roi_type);
+        
+        if (strcmp(labelinfo, "region") == 0) {
+            continue;
+        }
+
         gint id = 0;
         get_object_id(roi._meta(), &id);
 
@@ -60,6 +69,8 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
         jobject.push_back({"y", roi._meta()->y});
         jobject.push_back({"w", roi._meta()->w});
         jobject.push_back({"h", roi._meta()->h});
+        // jobject.push_back({"id", roi._meta()->id});
+        // jobject.push_back({"parent_id", roi._meta()->parent_id});
 
         if (id != 0)
             jobject.push_back({"id", id});
@@ -80,6 +91,7 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
                 double ymaxval;
                 double confidence;
                 int label_id;
+                int new_status;
                 if (gst_structure_get(s, "x_min", G_TYPE_DOUBLE, &xminval, "x_max", G_TYPE_DOUBLE, &xmaxval, "y_min",
                                       G_TYPE_DOUBLE, &yminval, "y_max", G_TYPE_DOUBLE, &ymaxval, NULL)) {
                     json detection = json::object(
@@ -93,9 +105,16 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
                     if (gst_structure_get(s, "label_id", G_TYPE_INT, &label_id, NULL)) {
                         detection.push_back({"label_id", label_id});
                     }
+                    if (gst_structure_get(s, "new", G_TYPE_INT, &new_status, NULL)) {
+                        detection.push_back({"new", new_status});
+                    }
 
                     const gchar *label = g_quark_to_string(roi._meta()->roi_type);
-
+                    
+                    // if (strcmp(label, "region") == 0) {
+                    //     region = {"region", {{"x_min", xminval}, {"x_max", xmaxval}, {"y_min", yminval}, {"y_max", ymaxval}}};
+                    //     continue;
+                    // }
                     if (label) {
                         detection.push_back({"label", label});
                     }
@@ -108,6 +127,7 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
                                       NULL)) {
                     double confidence;
                     int label_id;
+                    int new_status;
                     const gchar *attribute_name = gst_structure_has_field(s, "attribute_name")
                                                       ? gst_structure_get_string(s, "attribute_name")
                                                       : s_name;
@@ -119,6 +139,9 @@ json convert_roi_detection(GstGvaMetaConvert *converter, GstBuffer *buffer) {
 
                     if (gst_structure_get(s, "label_id", G_TYPE_INT, &label_id, NULL)) {
                         classification.push_back({"label_id", label_id});
+                    }
+                    if (gst_structure_get(s, "new", G_TYPE_INT, &new_status, NULL)) {
+                        classification.push_back({"new", new_status});
                     }
 
                     jobject.push_back(json::object_t::value_type(attribute_name, classification));
@@ -212,6 +235,9 @@ gboolean to_json(GstGvaMetaConvert *converter, GstBuffer *buffer) {
             if (!roi_detection.empty()) {
                 jframe_objects = roi_detection;
             } /* roi_detection can contain multiple objects, while frame_classification - only one */
+            if (!region.empty()) {
+                jframe["regions"] = region;
+            }
             json frame_classification = convert_frame_classification(converter, buffer);
             if (!frame_classification.empty()) {
                 jframe_objects.push_back(frame_classification);
@@ -236,8 +262,31 @@ gboolean to_json(GstGvaMetaConvert *converter, GstBuffer *buffer) {
                 if (!jframe_tensors.empty()) {
                     jframe["tensors"] = jframe_tensors;
                 }
-                std::string json_message = jframe.dump(converter->json_indent);
+                
                 GVA::VideoFrame video_frame(buffer, converter->info);
+
+                // // add uploadUrl
+                // auto msgs = video_frame.messages();
+                // // std::cout << "msgs.size: " << msgs.size() << std::endl;
+                // // std::cout << "msgs: " << msgs << std::endl;
+                // for (uint i = 0; i < msgs.size(); i++) {
+                //     auto jsonMsg = json::parse(msgs[i]);
+                //     std::cout << "convert json " << msgs[i] << std::endl;
+                //     std::string uploadUrl = jsonMsg["uploadUrl"];
+                //     if (!uploadUrl.empty()) jframe["uploadUrl"] = uploadUrl;
+                // }
+
+                const std::vector<GVA::Tensor> tensors = video_frame.tensors();
+                for (auto &tensor : video_frame.tensors()) {
+                    // std::cout << "name" << tensor.name() << " ";
+                    if (tensor.name() != "ext") continue;
+                    if (tensor.has_field("uploadUrl")) {
+                        std::string uploadUrl = tensor.get_string("uploadUrl");
+                        if (!uploadUrl.empty()) jframe["uploadUrl"] = uploadUrl;
+                    }
+                }
+                std::string json_message = jframe.dump(converter->json_indent);
+
                 video_frame.add_message(json_message);
                 GST_INFO_OBJECT(converter, "JSON message: %s", json_message.c_str());
             }

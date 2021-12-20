@@ -627,6 +627,21 @@ GstFlowReturn InferenceImpl::TransformFrameIp(GvaBaseInference *gva_base_inferen
     GstVideoRegionOfInterestMeta full_frame_meta;
     {
         ITT_TASK("InferenceImpl::TransformFrameIp collectROIMetas");
+
+        // GstVideoRegionOfInterestMeta *meta_info = NULL;
+        // gpointer status = NULL;
+        // meta_info = GST_VIDEO_REGION_OF_INTEREST_META_ITERATE(buffer, &status);
+        // const gchar *roi_type = (meta_info->roi_type ? g_quark_to_string(meta_info->roi_type) : "");
+        // if (strcmp(roi_type, "region") == 0) {
+        //     // gva_base_inference->inference_region = ROI_LIST;
+        //     // object_classes.clear();
+        //     // object_classes = {"region"};
+        //     // object_classes.push
+        //     // value
+        //     // g_free(base_inference->object_class);
+        //     // base_inference->object_class = g_value_dup_string(value);
+        // }
+        
         switch (gva_base_inference->inference_region) {
         case ROI_LIST: {
             /* iterates through buffer's meta and pushes it in vector if inference needed. */
