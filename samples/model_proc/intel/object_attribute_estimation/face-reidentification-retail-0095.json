@@ -1,23 +1,13 @@
 {
     "json_schema_version": "2.0.0",
-    "input_preproc": [],
-    "output_postproc": [
+    "input_preproc": [
         {
-            "layer_name": "prob",
-            "attribute_name": "gender",
-            "labels": [
-                "Female",
-                "Male"
-            ],
-            "converter": "tensor_to_label",
-            "method": "max"
-        },
-        {
-            "layer_name": "658/sink_port_0",
-            "attribute_name": "age",
-            "converter": "tensor_to_text",
-            "tensor_to_text_scale": 100.0,
-            "tensor_to_text_precision": 0
+            "layer_name": "0",
+            "format": "image",
+            "params":{
+                "alignment_points": [0.315569, 0.461574, 0.682623, 0.459834, 0.500262, 0.640505, 0.349472, 0.824692, 0.653436, 0.823251]
+            }
         }
-    ]
+    ],
+    "output_postproc": []
 }

@@ -1,0 +1,85 @@
+{
+    "objects": [
+        {
+            "detection": {
+                "bounding_box": {
+                    "x_max": 0.6823707818984985,
+                    "x_min": 0.503966212272644,
+                    "y_max": 0.6970411539077759,
+                    "y_min": 0.3024272322654724
+                },
+                "confidence": 0.9951077699661255,
+                "label": "face",
+                "label_id": 1
+            },
+            "h": 426,
+            "roi_type": "face",
+            "tensors": [
+                {
+                    "confidence": 0.9951077699661255,
+                    "label_id": 1,
+                    "layer_name": "detection_out",
+                    "layout": "ANY",
+                    "model_name": "mobilenet_ssd_672x384",
+                    "name": "detection",
+                    "precision": "UNSPECIFIED"
+                },
+                {
+                    "data": [
+                        1.0336849689483643,
+                        0.40687763690948486,
+                        -0.7516143321990967,
+                        -1.3249270915985107,
+                        0.4247729182243347,
+                        0.6302756667137146,
+                        -0.4264088273048401
+                    ],
+                    "dims": [
+                        1,
+                        256,
+                        1,
+                        1
+                    ],
+                    "layer_name": "658",
+                    "layout": "NCHW",
+                    "model_name": "face-reidentification-retail-0095",
+                    "name": "inference_layer_name:658",
+                    "precision": "FP32"
+                },
+                {
+                    "data": [
+                        0.11806157231330872,
+                        0.33004242181777954,
+                        0.5154985785484314,
+                        0.3261062204837799,
+                        0.2038523107767105,
+                        0.5083925724029541,
+                        0.17529867589473724,
+                        0.7476776838302612,
+                        0.45588868856430054,
+                        0.745527982711792
+                    ],
+                    "dims": [
+                        1,
+                        10,
+                        1,
+                        1
+                    ],
+                    "layer_name": "95",
+                    "layout": "NCHW",
+                    "model_name": "landmarks-regression-retail-0009",
+                    "name": "inference_layer_name:95",
+                    "precision": "FP32"
+                }
+            ],
+            "w": 343,
+            "x": 968,
+            "y": 327
+        }
+    ],
+    "resolution": {
+        "height": 1080,
+        "width": 1920
+    },
+    "timestamp": 1007966667
+}
