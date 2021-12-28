@@ -8,6 +8,7 @@
 #include "post_processor/blob_to_meta_converter.h"
 #include "yolo_v2.h"
 #include "yolo_v3.h"
+#include "yolo_v5.h"
 
 #include "inference_backend/image_inference.h"
 #include "inference_backend/logger.h"
@@ -19,7 +20,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <iostream>
 using namespace post_processing;
 
 namespace {
@@ -31,19 +32,26 @@ std::vector<float> getAnchors(GstStructure *s) {
     std::vector<float> anchors;
     if (arr) {
         anchors.reserve(arr->n_values);
-        for (guint i = 0; i < arr->n_values; ++i)
-            anchors.push_back(g_value_get_double(g_value_array_get_nth(arr, i)));
+        for (guint i = 0; i < arr->n_values; ++i){
+            auto temp = g_value_array_get_nth(arr, i);
+            if (G_TYPE_CHECK_VALUE_TYPE(temp, G_TYPE_INT)) {
+                anchors.push_back(g_value_get_int(temp));
+            } else {
+                anchors.push_back(g_value_get_double(temp));
+            }
+        }
         g_value_array_free(arr);
     } else {
         throw std::runtime_error("\"anchors\" array is null.");
     }
     return anchors;
 }
-
 std::map<size_t, std::vector<size_t>> getMask(GstStructure *s, size_t bbox_number_on_cell, size_t cells_number) {
 
     if (!gst_structure_has_field(s, "masks"))
         throw std::runtime_error("model proc does not have \"masks\" parameter.");
+    std::cout << "getMask ====1===" << std::endl;
+    
     GValueArray *arr = nullptr;
     gst_structure_get_array(s, "masks", &arr);
     std::vector<size_t> masks;
@@ -149,7 +157,7 @@ BlobToMetaConverter::Ptr YOLOBaseConverter::create(const std::string &model_name
                                 confidence_threshold, classes_number, anchors, cells_number, cells_number,
                                 iou_threshold, bbox_number_on_cell, do_cls_softmax, output_sigmoid_activation));
     }
-    if (converter_name == YOLOv3Converter::getName()) {
+    if (converter_name == YOLOv3Converter::getName() || converter_name == YOLOv5Converter::getName()) {
         if (!bbox_number_on_cell)
             bbox_number_on_cell = 3;
         const auto masks = getMask(model_proc_output_info.get(), bbox_number_on_cell, cells_number);
@@ -157,7 +165,11 @@ BlobToMetaConverter::Ptr YOLOBaseConverter::create(const std::string &model_name
             GST_WARNING("The size of the input layer of the model does not match the specified number of cells. Verify "
                         "your \"cells_number\" field in model_proc.");
         }
-        return BlobToMetaConverter::Ptr(new YOLOv3Converter(
+        if (converter_name == YOLOv3Converter::getName()) return BlobToMetaConverter::Ptr(new YOLOv3Converter(
+            model_name, input_image_info, std::move(model_proc_output_info), labels, confidence_threshold,
+            classes_number, anchors, masks, cells_number, cells_number, iou_threshold, bbox_number_on_cell,
+            input_image_info.width, do_cls_softmax, output_sigmoid_activation));
+        else if (converter_name == YOLOv5Converter::getName()) return BlobToMetaConverter::Ptr(new YOLOv5Converter(
             model_name, input_image_info, std::move(model_proc_output_info), labels, confidence_threshold,
             classes_number, anchors, masks, cells_number, cells_number, iou_threshold, bbox_number_on_cell,
             input_image_info.width, do_cls_softmax, output_sigmoid_activation));
