@@ -20,7 +20,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <iostream>
 using namespace post_processing;
 
 namespace {
@@ -50,7 +49,6 @@ std::map<size_t, std::vector<size_t>> getMask(GstStructure *s, size_t bbox_numbe
 
     if (!gst_structure_has_field(s, "masks"))
         throw std::runtime_error("model proc does not have \"masks\" parameter.");
-    std::cout << "getMask ====1===" << std::endl;
     
     GValueArray *arr = nullptr;
     gst_structure_get_array(s, "masks", &arr);

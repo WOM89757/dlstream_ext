@@ -47,6 +47,7 @@ add_subdirectory(cpp/draw_face_attributes)
 add_subdirectory(cpp/pvd_pipeline)
 add_subdirectory(cpp/common)
 add_subdirectory(cpp/fd_pipeline)
+add_subdirectory(cpp/fire_pipeline)
 
 
 add_custom_target(copy_model_proc ALL)

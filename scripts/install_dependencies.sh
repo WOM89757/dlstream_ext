@@ -8,7 +8,7 @@
 CURDIR=$PWD
 cd /tmp/
 
-wget -O - https://github.com/Intel-Media-SDK/MediaSDK/releases/download/intel-mediasdk-19.1.0/MediaStack.tar.gz | tar xz
+wget -e "https_proxy=192.168.1.3:1080"  -O - https://github.com/Intel-Media-SDK/MediaSDK/releases/download/intel-mediasdk-19.1.0/MediaStack.tar.gz | tar xz
 cd MediaStack && sudo ./install_media.sh
 cd ..
 

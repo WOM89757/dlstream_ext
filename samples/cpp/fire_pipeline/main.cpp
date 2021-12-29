@@ -338,8 +338,8 @@ int main(int argc, char *argv[]) {
                                       "gvadetect reshape=true reshape-height=640 reshape-width=640  model=/home/zy/opvinomodels/intel/yolov5-0001/FP32/yolov5s.xml device=%s batch-size=%d model-proc=/home/zy/intel/dlstreamer_gst/samples/model_proc/onnx/yolov5-coco.json  ! queue ! "
                                     //   "gvadetect  model=/home/zy/opvinomodels/intel/yolov5-0001/FP32/yolov5s.xml device=%s batch-size=%d model-proc=/home/zy/intel/dlstreamer_gst/samples/model_proc/onnx/yolov5-coco.json  ! queue ! "
                                     //   "%s"
-                                      "gvametaconvert json-indent=4 add-tensor-data=true ! gvametapublish method=stdout ! queue ! "
-                                    //   "gvametaconvert json-indent=4 ! gvametapublish method=stdout ! queue ! "
+                                    //   "gvametaconvert json-indent=4 add-tensor-data=true ! gvametapublish method=stdout ! queue ! "
+                                      "gvametaconvert json-indent=4 ! gvametapublish method=stdout ! queue ! "
                                     //   "gvametaconvert json-indent=4 ! queue ! "
                                       "gvawatermark name=gvawatermark ! videoconvert ! %s",
                                       video_source, input_file, preprocess_pipeline, capfilter, device,
@@ -349,10 +349,12 @@ int main(int argc, char *argv[]) {
     GstElement *pipeline = gst_parse_launch(launch_str, NULL);
     g_free(launch_str);
 
-// filesrc location=/home/zy/3.mp4 ! decodebin ! videoconvert  !  queue  !
-// gvadetect model=/home/zy/opvinomodels/intel/yolov5-0001/FP32/yolov5s.xml device=CPU batch-size=1   ! 
-// queue ! gvametaconvert json-indent=4 add-tensor-data=true ! gvametapublish method=stdout ! queue ! 
-// gvawatermark name=gvawatermark ! videoconvert ! fpsdisplaysink sync=false
+// filesrc location=/home/zy/3.mp4 ! decodebin ! videoconvert  !  queue  ! 
+// gvadetect reshape=true reshape-height=640 reshape-width=640  model=/home/zy/opvinomodels/intel/yolov5-0001/FP32/yolov5s.xml
+//  device=CPU batch-size=1 model-proc=/home/zy/intel/dlstreamer_gst/samples/model_proc/onnx/yolov5-coco.json  ! queue ! 
+//  gvametaconvert json-indent=4 add-tensor-data=true ! gvametapublish method=stdout ! queue ! 
+//  gvawatermark name=gvawatermark ! videoconvert ! fpsdisplaysink sync=false
+
 
 
     // auto gvainference_queue1 = gst_bin_get_by_name(GST_BIN(pipeline), "gvainference_queue1");
