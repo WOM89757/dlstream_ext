@@ -1,0 +1,41 @@
+{
+    "json_schema_version": "2.1.0",
+    "input_preproc": [],
+    "output_postproc": [
+        {
+            "layer_names": ["Conv_202","Conv_205","Conv_208"],
+            "converter": "tensor_to_bbox_yolo_v5",
+            "classes": 80,
+            "do_cls_softmax": true,
+            "output_sigmoid_activation": true,
+            "anchors": [
+                10,13,
+                16,30,
+                33,23,
+                30,61,
+                62,45,
+                59,119,
+                116,90,
+                156,198,
+                373,326
+            ],
+            "masks": [
+                6,
+                7,
+                8,
+                3,
+                4,
+                5,
+                0,
+                1,
+                2
+              ],
+            "iou_threshold": 0.5,
+            "bbox_number_on_cell": 3,
+            "cells_number": 20,
+            "labels": [
+                "fire"
+            ]
+        }
+    ]
+}
