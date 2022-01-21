@@ -1,6 +1,6 @@
-*
+# *
 
-!.gitignore
-!CMakeLists.txt
-!nlohman/CMakeLists.txt
-!pboettch/CMakeLists.txt
+# !.gitignore
+# !CMakeLists.txt
+# !nlohman/CMakeLists.txt
+# !pboettch/CMakeLists.txt
